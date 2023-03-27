@@ -1,0 +1,17 @@
+/node_modules
+/build
+.env
+
+# misc
+.DS_Store
+*.pem
+
+# Compress files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
