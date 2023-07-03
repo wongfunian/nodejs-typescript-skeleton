@@ -1,0 +1,268 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  staff
+  agent
+  client
+}
+
+model Department {
+  id                String    @id @default(uuid())
+  name              String    @db.VarChar(255)
+  superAdmin        Boolean   @default(false)
+  STAFF_VIEW        Boolean   @default(false)
+  STAFF_CREATE      Boolean   @default(false)
+  STAFF_UPDATE      Boolean   @default(false)
+  STAFF_DELETE      Boolean   @default(false)
+  DEPARTMENT_VIEW   Boolean   @default(false)
+  DEPARTMENT_CREATE Boolean   @default(false)
+  DEPARTMENT_UPDATE Boolean   @default(false)
+  DEPARTMENT_DELETE Boolean   @default(false)
+  CLIENT_VIEW       Boolean   @default(false)
+  CLIENT_CREATE     Boolean   @default(false)
+  CLIENT_UPDATE     Boolean   @default(false)
+  CLIENT_DELETE     Boolean   @default(false)
+  CLIENT_CREDENTIAL Boolean   @default(false)
+  AGENT_VIEW        Boolean   @default(false)
+  AGENT_CREATE      Boolean   @default(false)
+  AGENT_UPDATE      Boolean   @default(false)
+  AGENT_DELETE      Boolean   @default(false)
+  MARKETING_VIEW    Boolean   @default(false)
+  MARKETING_CREATE  Boolean   @default(false)
+  MARKETING_UPDATE  Boolean   @default(false)
+  MARKETING_DELETE  Boolean   @default(false)
+  ACTIVITY_LOG      Boolean   @default(false)
+  MEDIA             Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime? @db.Timestamptz(6)
+  staffs            Staff[]
+}
+
+model Staff {
+  id                   String                 @id @default(uuid())
+  staffId              Int                    @unique @default(autoincrement())
+  chineseName          String?                @db.VarChar(255)
+  englishName          String                 @db.VarChar(255)
+  nickname             String                 @db.VarChar(255)
+  dateOfBirth          DateTime               @db.Timestamptz(6)
+  nationality          String                 @db.VarChar(255)
+  documentNumber       String                 @db.VarChar(255)
+  dateOfJoin           DateTime               @db.Timestamptz(6)
+  position             String                 @db.VarChar(255)
+  directLine           String?                @db.VarChar(255)
+  mobile1              String                 @db.VarChar(255)
+  mobile2              String?                @db.VarChar(255)
+  email                String                 @db.VarChar(255)
+  address              String                 @db.VarChar(255)
+  remarks              String?                @db.VarChar(255)
+  username             String                 @db.VarChar(255)
+  password             String?                @db.VarChar(255)
+  lastActive           DateTime               @db.Timestamptz(6)
+  active               Boolean                @default(true)
+  token                String?                @db.VarChar(255)
+  tokenExpiredAt       DateTime?              @db.Timestamptz(6)
+  resetToken           String?                @db.VarChar(255)
+  resetTokenExpiredAt  DateTime?              @db.Timestamptz(6)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  deletedAt            DateTime?              @db.Timestamptz(6)
+  departmentId         String
+  activityLogs         ActivityLogs[]
+  agentPersonInCharge  AgentPersonInCharge[]
+  clientPersonInCharge ClientPersonInCharge[]
+  department           Department             @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([email, deletedAt], map: "staffs_email_deleted_at")
+  @@unique([username, deletedAt], map: "staffs_username_deleted_at")
+}
+
+model Client {
+  id                   String                 @id @default(uuid())
+  clientId             Int                    @unique @default(autoincrement())
+  companyName          String?                @db.VarChar(255)
+  address              String?                @db.VarChar(255)
+  website              String?                @db.VarChar(255)
+  industry             String?                @db.VarChar(255)
+  contactPerson        String                 @db.VarChar(255)
+  title                String?                @db.VarChar(255)
+  mobile               String?                @db.VarChar(255)
+  directLine           String?                @db.VarChar(255)
+  phone                String?                @db.VarChar(255)
+  email                String?                @db.VarChar(255)
+  referredBy           String?                @db.VarChar(255)
+  remarks              String?
+  username             String?                @db.VarChar(255)
+  password             String?                @db.VarChar(255)
+  lastActive           DateTime?              @db.Timestamptz(6)
+  portalExpiryDate     DateTime?              @db.Timestamptz(6)
+  token                String?                @db.VarChar(255)
+  tokenExpiredAt       DateTime?              @db.Timestamptz(6)
+  resetToken           String?                @db.VarChar(255)
+  resetTokenExpiredAt  DateTime?              @db.Timestamptz(6)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  deletedAt            DateTime?              @db.Timestamptz(6)
+  clientPersonInCharge ClientPersonInCharge[]
+
+  @@unique([email, deletedAt], map: "clients_email_deleted_at")
+  @@unique([username, deletedAt], map: "clients_username_deleted_at")
+}
+
+model ClientPersonInCharge {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  clientId  String
+  staffId   String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@id([clientId, staffId])
+}
+
+model Agent {
+  id                  String                @id @default(uuid())
+  agentId             Int                   @unique @default(autoincrement())
+  companyName         String?               @db.VarChar(255)
+  address             String?               @db.VarChar(255)
+  website             String?               @db.VarChar(255)
+  industry            String?               @db.VarChar(255)
+  contactPerson       String                @db.VarChar(255)
+  title               String?               @db.VarChar(255)
+  mobile              String?               @db.VarChar(255)
+  directLine          String?               @db.VarChar(255)
+  phone               String?               @db.VarChar(255)
+  email               String                @db.VarChar(255)
+  referredBy          String?               @db.VarChar(255)
+  remarks             String?
+  username            String                @db.VarChar(255)
+  password            String?               @db.VarChar(255)
+  lastActive          DateTime              @db.Timestamptz(6)
+  portalExpiryDate    DateTime?             @db.Timestamptz(6)
+  token               String?               @db.VarChar(255)
+  tokenExpiredAt      DateTime?             @db.Timestamptz(6)
+  resetToken          String?               @db.VarChar(255)
+  resetTokenExpiredAt DateTime?             @db.Timestamptz(6)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  deletedAt           DateTime?             @db.Timestamptz(6)
+  agentPersonInCharge AgentPersonInCharge[]
+
+  @@unique([email, deletedAt], map: "agents_email_deleted_at")
+  @@unique([username, deletedAt], map: "agents_username_deleted_at")
+}
+
+model AgentPersonInCharge {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  agentId   String
+  staffId   String
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@id([agentId, staffId])
+}
+
+model ActivityLogs {
+  id           String   @id @default(uuid())
+  targetId     String   @db.VarChar(255)
+  executorName String   @db.VarChar(255)
+  action       String   @db.VarChar(255)
+  description  String?  @db.VarChar(255)
+  reason       String?  @default("") @db.VarChar(255)
+  data         Json?    @db.Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  staffId      String?
+  staffs       Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
+}
+
+model Media {
+  id              String       @id @default(uuid())
+  name            String       @db.VarChar(255)
+  type            String       @db.VarChar(255)
+  size            Int
+  key             String       @unique
+  isPublic        Boolean      @default(false)
+  reference_table String?      @db.VarChar(255)
+  reference_id    String?      @db.VarChar(255)
+  permission      String?
+  userType        UserType
+  uploadedBy      String?
+  userId          String?      @db.VarChar(255)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  deletedAt       DateTime?    @db.Timestamptz(6)
+  attachements    Attachment[]
+}
+
+enum MarketingStatus {
+  draft
+  active
+  inactive
+}
+
+model Marketing {
+  id           String           @id @default(uuid())
+  name         String
+  subject      String
+  body         String
+  status       MarketingStatus  @default(active)
+  attachements Attachment[]
+  groupes      MarketingGroup[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?        @db.Timestamptz(6)
+}
+
+model Attachment {
+  id          String    @id @default(uuid())
+  marketingId String
+  mediaId     String
+  marketing   Marketing @relation(fields: [marketingId], references: [id])
+  media       Media     @relation(fields: [mediaId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? @db.Timestamptz(6)
+}
+
+enum MarketingGroupStatus {
+  inProgress
+  completed
+}
+
+model MarketingGroup {
+  id                String               @id @default(uuid())
+  name              String
+  status            MarketingGroupStatus
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  deletedAt         DateTime?            @db.Timestamptz(6)
+  marketingId       String?
+  Marketing         Marketing?           @relation(fields: [marketingId], references: [id])
+  MarketingReceiver MarketingReceiver[]
+}
+
+enum MarketingReceiverStatus {
+  failed
+  sent
+}
+
+model MarketingReceiver {
+  email     String
+  status    MarketingReceiverStatus
+  groupId   String
+  group     MarketingGroup          @relation(fields: [groupId], references: [id])
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+  deletedAt DateTime?               @db.Timestamptz(6)
+
+  @@id([email, groupId])
+}
